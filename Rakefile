@@ -127,8 +127,6 @@ task :build_glance_package do
 
   dependencies = SysDependencies["all"] + SysDependencies[component]
   sh "fpm  -v #{Version} -x .git -s dir -t deb -a all  -d #{dependencies.join(" -d ")}  -n cloudbau-#{component} -C build etc opt" 
-
-  Rake::Task[:copy_to_repo].invoke(Dir.glob("*.deb").join(" "))
 end
 
 def create_upstart_file_content(component, service_name)
