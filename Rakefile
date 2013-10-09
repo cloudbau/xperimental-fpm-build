@@ -97,7 +97,7 @@ task :default => :build_package
 desc "Build #{service.to_s}"
 task "build_#{service.to_s}_package".to_sym do 
   project_path = Dir.pwd
-  component = service
+  component = service.to_s
   desc "Build the packages for #{component}"
 
   dir = "build/opt/cloudbau/#{component}-virtualenv"
