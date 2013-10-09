@@ -116,7 +116,8 @@ task "build_#{service.to_s}_package".to_sym do
   sh "#{pip_install} #{PyDependencies['all'].join(' ')}"
   sh "#{pip_install} #{PyDependencies[component].join(' ')}"
   sh "cd #{dir}; bin/pip install #{project_path}/#{component}*.tar.gz"
-
+  su "virtualenv --relocatable #{dir}"
+  
   create_upstart_scripts(component)
   start_scripts = component == "quantum" ? "build/etc/init.d/#{component}*" : "build/etc/init/#{component}*.conf build/etc/init.d/#{component}*"
 
