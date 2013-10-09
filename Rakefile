@@ -93,16 +93,11 @@ Services = {
 
 task :default => :build_package
 
-desc "Build glance"
-task :build_glance_package do 
-  #project_path = args[:project_path] || ENV['WORKSPACE']
+[:glance, :nova, :keystone, :quantum, :cinder].each do |service|
+desc "Build #{service.to_s}"
+task "build_#{service.to_s}_package".to_sym do 
   project_path = Dir.pwd
-  #if project_path.nil?
-  ##   raise ArgumentError, "Need path for openstack compenent e.g. rake build_package[/path/to/project]"
-  #end
-  
-  #project_path = File::absolute_path(project_path)
-  component = "glance" # File.basename(project_path)
+  component = service
   desc "Build the packages for #{component}"
 
   dir = "build/opt/cloudbau/#{component}-virtualenv"
@@ -111,9 +106,9 @@ task :build_glance_package do
   sh "virtualenv #{dir}"
 
   if component == "nova"
-    sh "apt-get install python-libvirt"
     # Special treatment for libvirt
-    sh "cp /usr/lib/python2.7/dist-packages/libvirt* /opt/cloudbau/nova-virtualenv/lib/python2.7/site-packages/"
+    # Copy libvirt stuff because it's not available via pypi
+    sh "cp /usr/lib/python2.7/dist-packages/libvirt* #{dir}/lib/python2.7/site-packages/"
   end
 
   pip_install = "#{dir}/bin/pip install --upgrade"
@@ -127,6 +122,7 @@ task :build_glance_package do
 
   dependencies = SysDependencies["all"] + SysDependencies[component]
   sh "fpm  -v #{Version} -x .git -s dir -t deb -a all  -d #{dependencies.join(" -d ")}  -n cloudbau-#{component} -C build etc opt" 
+end
 end
 
 def create_upstart_file_content(component, service_name)
